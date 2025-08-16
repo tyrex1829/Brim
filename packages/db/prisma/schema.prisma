@@ -14,18 +14,74 @@ datasource db {
 }
 
 model User {
-  id            String    @id
+  id            String    @id @default(cuid())
   name          String
+  username      String   @unique
   email         String
   emailVerified Boolean
   image         String?
   createdAt     DateTime
   updatedAt     DateTime
+
   sessions      Session[]
   accounts      Account[]
+  brain         Brain?
 
   @@unique([email])
   @@map("user")
+}
+
+model Brain {
+  id            String   @id @default(cuid())
+  isPublic      Boolean  @default(false)  // Brain visibility toggle
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  userId String  @unique
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  Item[]
+
+  @@map("brains")
+}
+
+model Item {
+  id          String   @id @default(cuid())
+  title       String?
+  type        ItemType
+  content     String   // raw content: url, text, etc.
+  isPublic    Boolean  @default(false)
+  isShareable Boolean  @default(false) // only valid if public
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  brainId String
+  brain   Brain   @relation(fields: [brainId], references: [id], onDelete: Cascade)
+
+  tags    Tag[]
+
+  @@map("items")
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  // Relations
+  items Item[]
+  
+  @@map("tags")
+}
+
+enum ItemType {
+  TWEET
+  YOUTUBE_VIDEO
+  DOC
+  LINK
+  TEXT
 }
 
 model Session {
