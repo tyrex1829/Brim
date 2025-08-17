@@ -33,7 +33,6 @@ model User {
 
 model Brain {
   id            String   @id @default(cuid())
-  isPublic      Boolean  @default(false)  // Brain visibility toggle
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
