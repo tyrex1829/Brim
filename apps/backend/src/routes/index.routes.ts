@@ -6,4 +6,5 @@ import { userRouter } from "./user.routes";
 export const indexRouter: Router = Router();
 
 indexRouter.use("/auth", toNodeHandler(auth));
-indexRouter.use("/user", userRouter);
+
+indexRouter.use("/users", userRouter);

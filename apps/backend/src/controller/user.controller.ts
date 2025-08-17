@@ -1,24 +1,30 @@
 import { Request, Response } from "express";
 import {
-  getPublicUserParticularItem,
   getPublicUserProfile,
+  getOwnerUserProfile,
+  getPublicUserItem,
+  getOwnerUserItem,
 } from "../services/user.service";
 
-export const publicUserProfile = async (
+export const UserProfile = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
     const { username } = req.params;
 
-    const userProfile = await getPublicUserProfile(username);
+    const isOwner = req.user?.username === username;
 
-    if (!userProfile) {
+    const profile = isOwner
+      ? await getOwnerUserProfile(username)
+      : await getPublicUserProfile(username);
+
+    if (!profile) {
       res.status(404).json({ error: "User not found" });
       return;
     }
 
-    res.status(200).json(userProfile);
+    res.status(200).json(profile);
     return;
   } catch (error) {
     console.error(error);
@@ -27,21 +33,25 @@ export const publicUserProfile = async (
   }
 };
 
-export const publicUserParticularItem = async (
+export const UserParticularItem = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
     const { username, itemId } = req.params;
 
-    const publicItem = await getPublicUserParticularItem(username, itemId);
+    const isOwner = req.user?.username === username;
 
-    if (!publicItem) {
-      res.status(404).json({ error: "Item not found" });
+    const item = isOwner
+      ? await getOwnerUserItem(username, itemId)
+      : await getPublicUserItem(username, itemId);
+
+    if (!item) {
+      res.status(404).json({ error: "Item not found or not public" });
       return;
     }
 
-    res.status(200).json(publicItem);
+    res.status(200).json(item);
     return;
   } catch (error) {
     console.error(error);
@@ -49,3 +59,8 @@ export const publicUserParticularItem = async (
     return;
   }
 };
+
+export const updateUserProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {};
